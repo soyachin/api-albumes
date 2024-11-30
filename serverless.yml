@@ -9,7 +9,7 @@ provider:
   iam:
     role: arn:aws:iam::060098569939:role/LabRole
   environment:
-    TABLE_NAME: ${sls:stage}-t_albums
+    TABLE_NAME: ${sls:stage}-t_album
 
 functions:
   getAlbums:
