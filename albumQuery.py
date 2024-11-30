@@ -58,11 +58,8 @@ def lambda_handler(event, context):
 
 
 def query_by_genre(table, genre):
-    response = table.scan(
-        # date#genre es la clave de ordenamiento
-        response=table.scan(
+    response=table.scan(
             FilterExpression=Attr('date#genre').contains(genre)
-        )
     )
     return create_response(response)
 
