@@ -1,6 +1,5 @@
 import boto3
 import os
-from boto3.dynamodb.conditions import Key
 import json
 
 def lambda_handler(event, context):
@@ -17,32 +16,54 @@ def lambda_handler(event, context):
             })
         }
 
-
     try:
         dynamodb = boto3.resource('dynamodb')
         table = dynamodb.Table(table_name)
-        artist_mail = event['body']['artist_id']
-    except Exception as e:
-        print(e)
-        return {
-            'statusCode': 400,
-            'body': 'Cannot get artist_id'
-        }
 
-    try:
+
+        if isinstance(event['body'], str):
+            artist_info = json.loads(event['body'])
+        else:
+            artist_info = event['body']
+
+
+        if 'artist_id' not in artist_info or 'date' not in artist_info or 'genre' not in artist_info:
+            return {
+                'statusCode': 400,
+                'body': json.dumps({
+                    'error': 'Campos requeridos faltantes',
+                    'message': 'Se requiere tanto artist_id, date como genre'
+                })
+            }
+
+
+        sort_key = f"{artist_info['date']}#{artist_info['genre']}"
+
+
         response = table.delete_item(
-            FilterExpression=Key('artist_id').eq(artist_mail)
+            Key={
+                'artist_id': artist_info['artist_id'],
+                'date#genre': sort_key
+            }
         )
 
-        print("Deleted album, response: ", response)
+        print(f"Elemento eliminado, respuesta: {response}")
 
         return {
             'statusCode': 200,
-            'body': 'Album deleted'
+            'body': json.dumps({
+                'message': 'Álbum eliminado correctamente',
+                'artist_id': artist_info['artist_id'],
+                'date#genre': sort_key
+            })
         }
+
     except Exception as e:
-        print(e)
+        print(f"Error al eliminar el álbum: {str(e)}")
         return {
             'statusCode': 500,
-            'body': 'Error at deleting album'
+            'body': json.dumps({
+                'error': 'Error al eliminar el álbum',
+                'message': str(e)
+            })
         }

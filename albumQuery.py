@@ -1,7 +1,7 @@
 import boto3
 import os
 import json
-from boto3.dynamodb.conditions import Key
+from boto3.dynamodb.conditions import Key, Attr
 from botocore.exceptions import ClientError
 
 def lambda_handler(event, context):
@@ -58,8 +58,8 @@ def lambda_handler(event, context):
 
 
 def query_by_genre(table, genre):
-    response = table.scan(
-        FilterExpression=Key('genre').eq(genre)
+    response=table.scan(
+            FilterExpression=Attr('date#genre').contains(genre)
     )
     return create_response(response)
 
