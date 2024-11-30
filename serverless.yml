@@ -5,7 +5,7 @@ provider:
   name: aws
   runtime: python3.12
   memorySize: 512
-  timeout: 30
+  timeout: 29
   iam:
     role: arn:aws:iam::060098569939:role/LabRole
   environment:
@@ -80,8 +80,6 @@ resources:
                 KeyType: HASH
               - AttributeName: date#genre
                 KeyType: RANGE
-                Projection:
-                  ProjectionType: ALL
 
         PointInTimeRecoverySpecification:
           PointInTimeRecoveryEnabled: true
