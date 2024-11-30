@@ -66,22 +66,21 @@ resources:
           - AttributeName: date#genre
             KeyType: RANGE
         GlobalSecondaryIndexes:
-            - IndexName: UUIDIndex
-              KeySchema:
+          - IndexName: UUIDIndex
+            KeySchema:
               - AttributeName: album_uuid
                 KeyType: HASH
-              Projection:
-                ProjectionType: ALL
-
+            Projection:
+              ProjectionType: ALL
         LocalSecondaryIndexes:
-            - IndexName: Artist_DateIndex
-              KeySchema:
+          - IndexName: Artist_DateIndex
+            KeySchema:
               - AttributeName: artist_id
                 KeyType: HASH
               - AttributeName: date#genre
                 KeyType: RANGE
-
+            Projection:
+              ProjectionType: ALL
         PointInTimeRecoverySpecification:
           PointInTimeRecoveryEnabled: true
-
-        BillingMode: PAY_PER_REQUEST  # Uso de pago por demanda
+        BillingMode: PAY_PER_REQUEST
