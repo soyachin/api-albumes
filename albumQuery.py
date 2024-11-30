@@ -1,85 +1,92 @@
 import boto3
 import os
+import json
 from boto3.dynamodb.conditions import Key
-
-
-# albumQuery
-# Query to get albums by genre or artist_mail
+from botocore.exceptions import ClientError
 
 def lambda_handler(event, context):
-    print(event)
 
-    dynamodb = boto3.resource('dynamodb')
+    print(f"Evento recibido: {json.dumps(event)}")
 
-    try:
-        table_name = os.environ['TABLE_NAME']
-    except Exception as e:
-        print(e)
-        return {
-            'statusCode': 400,
-            'body': 'Cannot get table name from environment variables.'
-        }
-
-    table = dynamodb.Table(table_name)
-
-    # query string
-    query_params = event.get('queryStringParameters', {})
-
-    # es un genre o un artist_mail ?
-    genre = query_params.get('genre')
-    artist_mail = query_params.get('artistMail')
-
-    if genre:
-        try:
-            response = table.scan(
-                FilterExpression=Key('genre').eq(genre)
-            )
-            return {
-                'statusCode': 200,
-                'body': {
-                    'items': response['Items'],
-                    'count': response['Count']
-                }
-            }
-        except Exception as e:
-            print(e)
-            return {
-                'statusCode': 500,
-                'body': 'Error al obtener los datos por género.'
-            }
-
-    elif artist_mail:
-        try:
-            response = table.query(
-                KeyConditionExpression=Key('artist_mail').eq(artist_mail)
-            )
-            return {
-                'statusCode': 200,
-                'body': {
-                    'items': response['Items'],
-                    'count': response['Count']
-                }
-            }
-        except Exception as e:
-            print(e)
-            return {
-                'statusCode': 500,
-                'body': 'Error al obtener los datos por correo de artista.'
-            }
-
-    # Si no hay parámetros 'genre' ni 'artistMail', devolver todos los álbumes
-    try:
-        response = table.scan()
-        return {
-            'statusCode': 200,
-            'body': {
-                'items': response['Items'],
-                'count': response['Count']
-            }
-        }
-    except Exception as e:
-        print(e)
+    table_name = os.environ.get('TABLE_NAME')
+    if not table_name:
+        print("Error: Variable de entorno TABLE_NAME no configurada")
         return {
             'statusCode': 500,
-            'body': 'Error al obtener los datos.'
+            'body': json.dumps({
+                'error': 'Configuración de entorno incorrecta',
+                'message': 'No se ha configurado el nombre de la tabla'
+            })
         }
+
+    try:
+        dynamodb = boto3.resource('dynamodb')
+        table = dynamodb.Table(table_name)
+
+        query_params = event.get('queryStringParameters') or {}
+
+        if query_params.get('genre'):
+            return query_by_genre(table, query_params['genre'])
+
+        elif query_params.get('artistMail'):
+            return query_by_artist_mail(table, query_params['artistMail'])
+
+        return get_all_albums(table)
+
+    except ClientError as e:
+        error_code = e.response['Error']['Code']
+        error_message = e.response['Error']['Message']
+        print(f"DynamoDB Error: {error_code} - {error_message}")
+
+        return {
+            'statusCode': 500,
+            'body': json.dumps({
+                'error': 'Error de base de datos',
+                'message': f'Error al procesar la consulta: {error_message}'
+            })
+        }
+
+    except Exception as e:
+        print(f"Error inesperado: {str(e)}")
+        return {
+            'statusCode': 500,
+            'body': json.dumps({
+                'error': 'Error interno',
+                'message': 'Ocurrió un error al procesar la solicitud'
+            })
+        }
+
+
+def query_by_genre(table, genre):
+    response = table.scan(
+        FilterExpression=Key('genre').eq(genre)
+    )
+    return create_response(response)
+
+
+def query_by_artist_mail(table, artist_mail):
+    response = table.query(
+        KeyConditionExpression=Key('artist_mail').eq(artist_mail)
+    )
+    return create_response(response)
+
+
+def get_all_albums(table):
+    """Obtiene todos los álbumes"""
+    response = table.scan()
+    return create_response(response)
+
+
+def create_response(dynamodb_response):
+
+    return {
+        'statusCode': 200,
+        'headers': {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'  # Configuración CORS
+        },
+        'body': json.dumps({
+            'items': dynamodb_response['Items'],
+            'count': dynamodb_response['Count']
+        })
+    }
