@@ -21,7 +21,19 @@ def lambda_handler(event, context):
     try:
         dynamodb = boto3.resource('dynamodb')
         table = dynamodb.Table(table_name)
-        artist_mail = event['body']['artist_id']
+
+        if isinstance(event['body'], str):
+            artist_info = json.loads(event['body'])
+        else:
+            artist_info = event['body']
+
+        # Validar campos requeridos
+        if 'artist_id' not in artist_info:
+            return {
+                'statusCode': 400,
+                'body': 'artist_id es un campo requerido'
+            }
+
     except Exception as e:
         print(e)
         return {
@@ -31,7 +43,7 @@ def lambda_handler(event, context):
 
     try:
         response = table.delete_item(
-            FilterExpression=Key('artist_id').eq(artist_mail)
+            FilterExpression=Key('artist_id').eq(artist_info['artist_id'])
         )
 
         print("Deleted album, response: ", response)
