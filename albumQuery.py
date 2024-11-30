@@ -58,8 +58,9 @@ def lambda_handler(event, context):
 
 
 def query_by_genre(table, genre):
-    response = table.query(
-        KeyConditionExpression=Key('date#genre').begins_with(genre)
+    response = table.scan(
+        # date#genre es la clave de ordenamiento
+        FilterExpression=Key('date#genre').begins_with(genre)
     )
     return create_response(response)
 
