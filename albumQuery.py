@@ -2,6 +2,7 @@ import boto3
 import os
 from boto3.dynamodb.conditions import Key
 
+
 # albumQuery
 # Query to get albums by genre or artist_mail
 
@@ -24,7 +25,7 @@ def lambda_handler(event, context):
     # query string
     query_params = event.get('queryStringParameters', {})
 
-    #es un genre o un artist_mail ?
+    # es un genre o un artist_mail ?
     genre = query_params.get('genre')
     artist_mail = query_params.get('artistMail')
 
@@ -59,7 +60,6 @@ def lambda_handler(event, context):
                     'count': response['Count']
                 }
             }
-
         except Exception as e:
             print(e)
             return {
@@ -67,8 +67,7 @@ def lambda_handler(event, context):
                 'body': 'Error al obtener los datos por correo de artista.'
             }
 
-    # return all
-
+    # Si no hay parámetros 'genre' ni 'artistMail', devolver todos los álbumes
     try:
         response = table.scan()
         return {
@@ -82,6 +81,5 @@ def lambda_handler(event, context):
         print(e)
         return {
             'statusCode': 500,
-            'body': 'Error al obtener los datos'
+            'body': 'Error al obtener los datos.'
         }
-
