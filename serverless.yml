@@ -1,4 +1,4 @@
-org: org
+org: msalazar
 service: api-favorites-test
 
 provider:
