@@ -1,5 +1,5 @@
 org: mirandasalazar
-service: api-favorites-test
+service: api-album
 
 provider:
   name: aws
@@ -9,7 +9,7 @@ provider:
   iam:
     role: arn:aws:iam::060098569939:role/LabRole
   environment:
-    TABLE_NAME: ${sls:stage}-t_favorites
+    TABLE_NAME: ${sls:stage}-t_albums
 
 functions:
   getAllAlbums:
