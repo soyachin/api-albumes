@@ -12,12 +12,15 @@ provider:
     TABLE_NAME: ${sls:stage}-t_albums
 
 functions:
-  getAllAlbums:
-    handler: getAll.lambda_handler
+  getAlbums:
+    handler: albumQuery.lambda_handler
     events:
       - http:
           path: albums
           method: get
+          queryStringParameters:
+            - genre  # query parameter -> genre
+            - artistMail  # query parameter -> artist_id
 
   deleteAlbum:
     handler: deleteAlbum.lambda_handler
@@ -25,20 +28,6 @@ functions:
       - http:
           path: albums
           method: delete
-
-  getByArtistMail:
-    handler: getByArtistMail.lambda_handler
-    events:
-      - http:
-          path: albums/{artistMail}
-          method: get
-
-  getByGenre:
-    handler: getByGenre.lambda_handler
-    events:
-      - http:
-          path: albums/{genre}
-          method: get
 
   postAlbum:
     handler: postAlbum.lambda_handler
