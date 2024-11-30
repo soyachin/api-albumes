@@ -1,6 +1,5 @@
 import boto3
 import os
-from boto3.dynamodb.conditions import Key
 import json
 
 def lambda_handler(event, context):
@@ -16,7 +15,6 @@ def lambda_handler(event, context):
                 'message': 'No se ha configurado el nombre de la tabla'
             })
         }
-
 
     try:
         dynamodb = boto3.resource('dynamodb')
@@ -34,27 +32,28 @@ def lambda_handler(event, context):
                 'body': 'artist_id es un campo requerido'
             }
 
-    except Exception as e:
-        print(e)
-        return {
-            'statusCode': 400,
-            'body': 'Cannot get artist_id'
-        }
-
-    try:
         response = table.delete_item(
-            FilterExpression=Key('artist_id').eq(artist_info['artist_id'])
+            Key={
+                'artist_id': artist_info['artist_id']
+            }
         )
 
         print("Deleted album, response: ", response)
 
         return {
             'statusCode': 200,
-            'body': 'Album deleted'
+            'body': json.dumps({
+                'message': 'Album deleted successfully',
+                'deleted_item': response.get('Attributes', {})
+            })
         }
+
     except Exception as e:
         print(e)
         return {
             'statusCode': 500,
-            'body': 'Error at deleting album'
+            'body': json.dumps({
+                'error': 'Error deleting item',
+                'message': str(e)
+            })
         }
