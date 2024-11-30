@@ -58,11 +58,32 @@ resources:
             AttributeType: S
           - AttributeName: date#genre
             AttributeType: S
+          - AttributeName: album_uuid
+            AttributeType: S
         KeySchema:
           - AttributeName: artist_id
             KeyType: HASH
           - AttributeName: date#genre
             KeyType: RANGE
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
+        GlobalSecondaryIndexes:
+            - IndexName: UUIDIndex
+              KeySchema:
+              - AttributeName: album_uuid
+                KeyType: HASH
+              Projection:
+                ProjectionType: ALL
+
+        LocalSecondaryIndexes:
+            - IndexName: Artist_DateIndex
+              KeySchema:
+              - AttributeName: artist_id
+                KeyType: HASH
+              - AttributeName: date#genre
+                KeyType: RANGE
+                Projection:
+                  ProjectionType: ALL
+
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: true
+
+        BillingMode: PAY_PER_REQUEST  # Uso de pago por demanda
