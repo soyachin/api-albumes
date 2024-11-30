@@ -1,24 +1,26 @@
 import boto3
 import os
 from boto3.dynamodb.conditions import Key
+import json
 
 def lambda_handler(event, context):
-    print(event)
+    print(f"Evento recibido: {json.dumps(event)}")
 
-    dynamodb = boto3.resource('dynamodb')
-
-    try:
-        table_name = os.environ['TABLE_NAME']
-    except Exception as e:
-        print(e)
+    table_name = os.environ.get('TABLE_NAME')
+    if not table_name:
+        print("Error: Variable de entorno TABLE_NAME no configurada")
         return {
-            'statusCode': 400,
-            'body': 'Cannot get table name from environment variables.'
+            'statusCode': 500,
+            'body': json.dumps({
+                'error': 'Configuración de entorno incorrecta',
+                'message': 'No se ha configurado el nombre de la tabla'
+            })
         }
 
-    table = dynamodb.Table(table_name)
 
     try:
+        dynamodb = boto3.resource('dynamodb')
+        table = dynamodb.Table(table_name)
         artist_mail = event['body']['artist_id']
     except Exception as e:
         print(e)

@@ -9,11 +9,11 @@ provider:
   iam:
     role: arn:aws:iam::060098569939:role/LabRole
   environment:
-    TABLE_NAME: ${sls:stage}-t_albums
+    TABLE_NAME: ${sls:stage}-t_album
 
 functions:
-  getAllAlbums:
-    handler: getAll.lambda_handler
+  getAlbums:
+    handler: albumQuery.lambda_handler
     events:
       - http:
           path: albums
@@ -25,20 +25,6 @@ functions:
       - http:
           path: albums
           method: delete
-
-  getByArtistMail:
-    handler: getByArtistMail.lambda_handler
-    events:
-      - http:
-          path: albums/{artistMail}
-          method: get
-
-  getByGenre:
-    handler: getByGenre.lambda_handler
-    events:
-      - http:
-          path: albums/{genre}
-          method: get
 
   postAlbum:
     handler: postAlbum.lambda_handler
