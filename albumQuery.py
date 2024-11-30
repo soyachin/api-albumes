@@ -28,8 +28,8 @@ def lambda_handler(event, context):
         if query_params.get('genre'):
             return query_by_genre(table, query_params['genre'])
 
-        elif query_params.get('artistMail'):
-            return query_by_artist_mail(table, query_params['artistMail'])
+        elif query_params.get('artist_id'):
+            return query_by_artist_mail(table, query_params['artist_id'])
 
         return get_all_albums(table)
 
@@ -66,7 +66,7 @@ def query_by_genre(table, genre):
 
 def query_by_artist_mail(table, artist_mail):
     response = table.query(
-        KeyConditionExpression=Key('artist_mail').eq(artist_mail)
+        KeyConditionExpression=Key('artist_id').eq(artist_mail)
     )
     return create_response(response)
 
