@@ -1,0 +1,68 @@
+org: org
+service: api-favorites-test
+
+provider:
+  name: aws
+  runtime: python3.12
+  memorySize: 512
+  timeout: 30
+  iam:
+    role: arn:aws:iam::060098569939:role/LabRole
+  environment:
+    TABLE_NAME: ${sls:stage}-t_favorites
+
+functions:
+  getAllAlbums:
+    handler: getAll.lambda_handler
+    events:
+      - http:
+          path: albums
+          method: get
+
+  deleteAlbum:
+    handler: deleteAlbum.lambda_handler
+    events:
+      - http:
+          path: albums
+          method: delete
+
+  getByArtistMail:
+    handler: getByArtistMail.lambda_handler
+    events:
+      - http:
+          path: albums/{artistMail}
+          method: get
+
+  getByGenre:
+    handler: getByGenre.lambda_handler
+    events:
+      - http:
+          path: albums/{genre}
+          method: get
+
+  postAlbum:
+    handler: postAlbum.lambda_handler
+    events:
+      - http:
+          path: albums
+          method: post
+
+resources:
+  Resources:
+    AlbumTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.TABLE_NAME}
+        AttributeDefinitions:
+          - AttributeName: artist_id
+            AttributeType: S
+          - AttributeName: date#genre
+            AttributeType: S
+        KeySchema:
+          - AttributeName: artist_id
+            KeyType: HASH
+          - AttributeName: date#genre
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
