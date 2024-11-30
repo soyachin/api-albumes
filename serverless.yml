@@ -18,9 +18,6 @@ functions:
       - http:
           path: albums
           method: get
-          queryStringParameters:
-            - genre  # query parameter -> genre
-            - artistMail  # query parameter -> artist_id
 
   deleteAlbum:
     handler: deleteAlbum.lambda_handler

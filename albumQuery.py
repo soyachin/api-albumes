@@ -59,6 +59,7 @@ def lambda_handler(event, context):
                     'count': response['Count']
                 }
             }
+
         except Exception as e:
             print(e)
             return {
@@ -66,7 +67,21 @@ def lambda_handler(event, context):
                 'body': 'Error al obtener los datos por correo de artista.'
             }
 
-    return {
-        'statusCode': 400,
-        'body': 'Se debe especificar un parámetro genre o artistMail en el query string.'
-    }
+    # return all
+
+    try:
+        response = table.scan()
+        return {
+            'statusCode': 200,
+            'body': {
+                'items': response['Items'],
+                'count': response['Count']
+            }
+        }
+    except Exception as e:
+        print(e)
+        return {
+            'statusCode': 500,
+            'body': 'Error al obtener los datos'
+        }
+
