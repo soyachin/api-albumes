@@ -1,0 +1,90 @@
+openapi: 3.0.0
+info:
+  title: API-albumes Lambda-DynamoDB
+  description: Documentación de la API que consulta DynamoDB desde Lambda.
+  version: 1.0.0
+paths:
+  /albums:
+    get:
+      summary: Obtiene álbumes de DynamoDB
+      description: Recupera álbumes filtrados por género o artista.
+      parameters:
+        - name: genre
+          in: query
+          description: Filtro por género musical.
+          required: false
+          schema:
+            type: string
+        - name: artist_id
+          in: query
+          description: Filtro por ID de artista.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de álbumes.
+        '400':
+          description: Error en los parámetros.
+        '404':
+          description: No se encontraron álbumes.
+        '500':
+          description: Error interno del servidor.
+
+    post:
+      summary: Crea un nuevo álbum en DynamoDB
+      description: Crea un nuevo álbum en la tabla de DynamoDB.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                artist_id:
+                  type: string
+                date#genre:
+                  type: string
+              required:
+                - artist_id
+                - date#genre
+
+      responses:
+        '201':
+          description: Álbum creado.
+        '400':
+          description: Error en los parámetros.
+        '500':
+          description: Error interno del servidor.
+
+
+    delete:
+      summary: Elimina un álbum de DynamoDB
+      description: Elimina un álbum de la tabla de DynamoDB.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                album_id:
+                  type: string
+                date:
+                  type: string
+                genre:
+                  type: string  
+
+              required:
+                - album_id
+                - date
+                - genre
+      responses:
+        '200':
+          description: Álbum eliminado.
+        '400':
+          description: Error en los parámetros.
+        '404':
+          description: No se encontró el álbum.
+        '500':
+          description: Error interno del servidor.

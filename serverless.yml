@@ -19,6 +19,7 @@ functions:
           path: albums
           method: get
 
+
   deleteAlbum:
     handler: deleteAlbum.lambda_handler
     events:
@@ -32,6 +33,7 @@ functions:
       - http:
           path: albums
           method: post
+
 
 resources:
   Resources:
