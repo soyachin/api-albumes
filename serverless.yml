@@ -18,15 +18,7 @@ functions:
       - http:
           path: albums
           method: get
-          responses:
-            '200':
-              description: Lista de álbumes recuperada con éxito
-            '400':
-              description: Parámetros inválidos proporcionados
-            '404':
-              description: No se encontraron álbumes
-            '500':
-              description: Error interno del servidor o error en la base de datos
+
 
   deleteAlbum:
     handler: deleteAlbum.lambda_handler
@@ -34,15 +26,6 @@ functions:
       - http:
           path: albums
           method: delete
-          responses:
-            '200':
-              description: Ábum eliminado correctamente
-            '400':
-              description: Datos inválidos proporcionados
-            '404':
-              description: Álbum no encontrado
-            '500':
-              description: Error interno del servidor o error en la base de datos
 
   postAlbum:
     handler: postAlbum.lambda_handler
@@ -50,15 +33,7 @@ functions:
       - http:
           path: albums
           method: post
-          responses:
-            '201':
-              description: Álbum creado exitosamente
-            '400':
-              description: Datos inválidos proporcionados
-            '404':
-              description: Álbum no encontrado
-            '500':
-              description: Error interno del servidor o error en la base de datos
+
 
 resources:
   Resources:
