@@ -47,6 +47,7 @@ paths:
                   type: string
               required:
                 - artist_id
+                - date#genre
 
       responses:
         '201':
@@ -60,24 +61,24 @@ paths:
     delete:
       summary: Elimina un álbum de DynamoDB
       description: Elimina un álbum de la tabla de DynamoDB.
-      parameters:
-        - name: album_id
-          in: query
-          description: ID del álbum a eliminar.
-          required: true
-          schema:
-            type: string
-          properties:
-            album_id:
-              type: string
-            date:
-              type: string
-            genre:
-              type: string
-            required:
-              - album_id
-              - date
-              - genre    
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                album_id:
+                  type: string
+                date:
+                  type: string
+                genre:
+                  type: string  
+
+              required:
+                - album_id
+                - date
+                - genre
       responses:
         '200':
           description: Álbum eliminado.
