@@ -38,13 +38,30 @@ def lambda_handler(event, context):
         error_message = e.response['Error']['Message']
         print(f"DynamoDB Error: {error_code} - {error_message}")
 
-        return {
-            'statusCode': 500,
-            'body': json.dumps({
-                'error': 'Error de base de datos',
-                'message': f'Error al procesar la consulta: {error_message}'
-            })
-        }
+        if error_code == 'ResourceNotFoundException':
+            return {
+                'statusCode': 404,
+                'body': json.dumps({
+                    'error': 'Recurso no encontrado',
+                    'message': 'Error al acceder a la tabla de datos'
+                })
+            }
+        elif error_code == 'ValidationException':
+            return {
+                'statusCode': 400,
+                'body': json.dumps({
+                    'error': 'Solicitud incorrecta',
+                    'message': 'La solicitud contiene parámetros no válidos'
+                })
+            }
+        else:
+            return {
+                'statusCode': 500,
+                'body': json.dumps({
+                    'error': 'Error de base de datos',
+                    'message': f'Error al procesar la consulta: {error_message}'
+                })
+            }
 
     except Exception as e:
         print(f"Error inesperado: {str(e)}")
@@ -58,8 +75,8 @@ def lambda_handler(event, context):
 
 
 def query_by_genre(table, genre):
-    response=table.scan(
-            FilterExpression=Attr('date#genre').contains(genre)
+    response = table.scan(
+        FilterExpression=Attr('date#genre').contains(genre)
     )
     return create_response(response)
 
@@ -72,18 +89,25 @@ def query_by_artist_mail(table, artist_mail):
 
 
 def get_all_albums(table):
-    """Obtiene todos los álbumes"""
     response = table.scan()
     return create_response(response)
 
 
 def create_response(dynamodb_response):
+    if 'Items' not in dynamodb_response or not dynamodb_response['Items']:
+        return {
+            'statusCode': 404,
+            'body': json.dumps({
+                'error': 'No encontrado',
+                'message': 'No se encontraron elementos'
+            })
+        }
 
     return {
         'statusCode': 200,
         'headers': {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'  # Configuración CORS
+            'Access-Control-Allow-Origin': '*'
         },
         'body': json.dumps({
             'items': dynamodb_response['Items'],
